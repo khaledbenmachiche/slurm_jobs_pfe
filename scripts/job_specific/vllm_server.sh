@@ -53,7 +53,6 @@ setup_cache_environment() {
     
     # HuggingFace / Transformers cache
     export HF_HOME="$BASE_CACHE_DIR/hf"
-    export TRANSFORMERS_CACHE="$BASE_CACHE_DIR/hf"
     export HF_DATASETS_CACHE="$BASE_CACHE_DIR/hf"
     
     # PyTorch cache
