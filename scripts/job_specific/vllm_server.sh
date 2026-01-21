@@ -75,10 +75,10 @@ check_gpu() {
 main() {
     log_info "Starting vLLM server job main function..."
 
-    # Load required modules (optional)
+    # Load required modules (cuda/12.2.0 will also load gcc/9.2.0 as dependency)
     log_info "Loading required modules..."
-    if ! load_modules gcc/9.2.0; then
-        log_warn "Could not load module gcc/9.2.0; continuing without it"
+    if ! load_modules cuda/12.2.0; then
+        log_warn "Could not load module cuda/12.2.0; continuing without it"
     else
         log_info "Modules loaded successfully"
     fi
