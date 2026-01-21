@@ -1,0 +1,97 @@
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+logs/**/*.log
+logs/**/*.err
+logs/**/*.out
+*.log
+*.err
+*.out
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+.tmp/
+
+# SLURM output files (if not in logs/)
+slurm-*.out
+slurm-*.err
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Data files (adjust based on your needs)
+*.csv
+*.dat
+*.json
+*.xml
+*.h5
+*.hdf5
+*.npz
+*.pkl
+*.pickle
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Compiled objects
+*.o
+*.ko
+*.obj
+*.elf
+*.so
+*.dylib
+*.dll
+
+# Configuration files with sensitive data (if any)
+# Uncomment if you have local config files with secrets
+# configs/*.local.conf
+# configs/*secret*
+
+# Job-specific temporary directories
+scratch_*
+.scratch/
+
+# Keep directory structure but ignore content
+logs/*
+!logs/.gitkeep
