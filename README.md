@@ -151,9 +151,15 @@ Create a new SBATCH file in `jobs/`:
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=your-email@example.com
 
-# Get project directories
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# IMPORTANT: Use absolute path to project root
+# Replace with your actual project path
+PROJECT_ROOT="/path/to/your/slurm_jobs"
+
+# Verify project root exists
+if [[ ! -d "$PROJECT_ROOT" ]]; then
+    echo "ERROR: Project root not found: $PROJECT_ROOT"
+    exit 1
+fi
 
 # Source the job-specific script
 JOB_SCRIPT="$PROJECT_ROOT/scripts/job_specific/my_new_job.sh"
@@ -445,6 +451,14 @@ main() {
 ```
 
 ## 🐛 Troubleshooting
+
+### Job Script Not Found
+- **Error**: `ERROR: Job script not found: /var/spool/slurmd/scripts/job_specific/...`
+- **Cause**: SBATCH file using relative paths that don't resolve on compute nodes
+- **Fix**: Update `PROJECT_ROOT` in your SBATCH file to use absolute path:
+  ```bash
+  PROJECT_ROOT="/scratch/kb5253/slurm_jobs_pfe"  # Use your actual path
+  ```
 
 ### Job Not Starting
 - Check SLURM queue: `./utils/monitor_jobs.sh`

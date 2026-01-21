@@ -51,11 +51,13 @@ HF_CACHE_DIR="/scratch/kb5253/hf_cache"
 Once the server is running, you can access it via:
 
 ### Health Check
+
 ```bash
 curl http://<node>:8000/health
 ```
 
 ### OpenAI-Compatible API
+
 ```bash
 curl http://<node>:8000/v1/completions \
   -H "Content-Type: application/json" \
@@ -101,6 +103,7 @@ print(completion.choices[0].text)
 ## Logs
 
 Logs are stored in:
+
 ```
 logs/jobs/vllm_server/
 ├── job_<JOB_ID>_<TIMESTAMP>.log
@@ -111,6 +114,7 @@ logs/jobs/vllm_server/
 ## Environment Variables
 
 The job automatically sets:
+
 - `HF_HOME` - HuggingFace cache directory
 - `TRANSFORMERS_CACHE` - Transformers cache
 - `HF_DATASETS_CACHE` - Datasets cache
@@ -118,6 +122,7 @@ The job automatically sets:
 ## Troubleshooting
 
 ### Server not starting
+
 ```bash
 # Check logs
 ./utils/monitor_jobs.sh --logs <JOB_ID>
@@ -127,16 +132,19 @@ squeue -u $USER -o "%.18i %.9P %.30j %.8T %.10M %.6D %b"
 ```
 
 ### Connection refused
+
 - Ensure you're connecting from the same cluster
 - Check firewall rules
 - Verify the port is not blocked
 
 ### Out of memory
+
 - Reduce `MAX_MODEL_LEN`
 - Reduce `GPU_MEMORY_UTILIZATION`
 - Use a smaller model
 
 ### Model not found
+
 - Verify `MODEL_PATH` exists
 - Check model files are complete
 - Ensure proper permissions

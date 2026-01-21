@@ -15,9 +15,14 @@
 # This is a wrapper that calls the job-specific script
 #
 
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Use absolute path to project root (adjust this to your actual path)
+PROJECT_ROOT="/scratch/kb5253/slurm_jobs_pfe"
+
+# Verify project root exists
+if [[ ! -d "$PROJECT_ROOT" ]]; then
+    echo "ERROR: Project root not found: $PROJECT_ROOT"
+    exit 1
+fi
 
 # Source the job-specific script
 JOB_SCRIPT="$PROJECT_ROOT/scripts/job_specific/egraphs_dataset.sh"
