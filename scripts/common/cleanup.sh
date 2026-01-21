@@ -34,7 +34,7 @@ execute_cleanup() {
     local failed_tasks=0
     for task in "${CLEANUP_TASKS[@]}"; do
         log_debug "Cleanup: $task"
-        if eval "$task" 2>&1; then
+        if eval "$task" > /dev/null 2>&1; then
             log_debug "Cleanup task succeeded: $task"
         else
             log_warn "Cleanup task failed: $task"

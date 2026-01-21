@@ -41,7 +41,7 @@ setup_rust_env() {
     # Verify cargo is available
     if command -v cargo &> /dev/null; then
         log_info "Cargo found: $(which cargo)"
-        log_info "Cargo version: $(cargo --version)"
+        log_info "Cargo version: $(cargo --version 2>&1)"
         return 0
     else
         log_error "cargo not found in PATH"
@@ -94,7 +94,7 @@ setup_conda_env() {
     fi
     
     # Activate environment
-    if conda activate "$env_name" 2>&1; then
+    if conda activate "$env_name" > /dev/null 2>&1; then
         log_info "Conda environment activated: $env_name"
         log_info "Python version: $(python --version 2>&1)"
         return 0

@@ -11,9 +11,9 @@ set -o pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../common" && pwd)"
 
 # Source common utilities
-source "$SCRIPT_DIR/logging.sh"
-source "$SCRIPT_DIR/env_setup.sh"
-source "$SCRIPT_DIR/cleanup.sh"
+source "$SCRIPT_DIR/logging.sh" || { echo "Failed to source logging.sh"; exit 1; }
+source "$SCRIPT_DIR/env_setup.sh" || { echo "Failed to source env_setup.sh"; exit 1; }
+source "$SCRIPT_DIR/cleanup.sh" || { echo "Failed to source cleanup.sh"; exit 1; }
 
 # Job configuration
 JOB_NAME="vllm_server"
@@ -181,12 +181,14 @@ main() {
 }
 
 # Execute main function
+log_info "About to execute main function..."
 if main; then
     exit_code=0
     log_job_footer $exit_code
     exit $exit_code
 else
     exit_code=$?
+    log_error "Main function failed with exit code: $exit_code"
     log_job_footer $exit_code
     exit $exit_code
 fi
