@@ -115,7 +115,7 @@ log_error() {
 log_separator() {
     local char="${1:-=}"
     local length="${2:-80}"
-    printf "${char}%.0s" $(seq 1 $length)
+    printf "%${length}s" "" | tr ' ' "$char"
     echo
 }
 
