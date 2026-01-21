@@ -65,12 +65,24 @@ check_gpu() {
 
 # Main job function
 main() {
+    log_info "Starting vLLM server job main function..."
+
     # Load required modules
     log_info "Loading required modules..."
-    load_modules gcc/9.2.0
+    load_modules gcc/9.2.0 || {
+        log_error "Failed to load modules"
+        return 1
+    }
+
+    log_info "Modules loaded successfully"
     
     # Setup HuggingFace environment
-    setup_hf_environment
+    log_info "Setting up HuggingFace environment..."
+    setup_hf_environment || {
+        log_error "Failed to setup HuggingFace environment"
+        return 1
+    }
+    log_info "HuggingFace environment setup complete"
     
     # Verify vllm command is available
     verify_command vllm || {
@@ -82,10 +94,17 @@ main() {
     log_info "vLLM version: $(vllm --version 2>&1 || echo 'unknown')"
     
     # Check GPU availability
+    log_info "Checking GPU availability..."
     check_gpu
+    log_info "GPU check complete"
     
     # Verify model path
-    verify_directory "$MODEL_PATH" "Model directory" || return 1
+    log_info "Verifying model path: $MODEL_PATH"
+    verify_directory "$MODEL_PATH" "Model directory" || {
+        log_error "Model directory verification failed"
+        return 1
+    }
+    log_info "Model path verified successfully"
     
     # Print configuration
     log_separator "="
@@ -105,9 +124,11 @@ main() {
     # Start vLLM server
     log_info "Starting vLLM server..."
     log_info "Server will be accessible at http://$(hostname):$PORT"
+    log_info "Command: vllm serve \"$MODEL_PATH\" --dtype \"$DTYPE\" --max-model-len \"$MAX_MODEL_LEN\" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\" --host \"$HOST\" --port \"$PORT\""
     log_separator "="
     
     # Run vllm server (this will block)
+    log_info "Executing vllm serve command..."
     vllm serve "$MODEL_PATH" \
         --dtype "$DTYPE" \
         --max-model-len "$MAX_MODEL_LEN" \
