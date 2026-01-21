@@ -16,7 +16,7 @@ load_modules() {
     
     for module in "$@"; do
         log_info "Loading module: $module"
-        if module load "$module" 2>&1; then
+        if module load "$module" > /dev/null 2>&1; then
             log_info "Successfully loaded: $module"
         else
             log_error "Failed to load module: $module"
