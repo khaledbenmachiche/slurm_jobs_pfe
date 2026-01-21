@@ -35,28 +35,46 @@ log_job_header "$JOB_NAME"
 setup_cleanup_trap
 
 
-# Function to setup HuggingFace environment
-setup_hf_environment() {
-    log_info "Setting up HuggingFace environment..."
+# Function to setup cache environments (HF, PyTorch, vLLM, etc.)
+setup_cache_environment() {
+    log_info "Setting up cache environments..."
     
-    # Create cache directory if it doesn't exist; fall back if /scratch isn't writable
-    if ! ensure_directory "$HF_CACHE_DIR"; then
-        log_warn "Unable to create HF cache dir: $HF_CACHE_DIR — falling back to home cache"
-        HF_CACHE_DIR="$HOME/.cache/hf"
-        if ! ensure_directory "$HF_CACHE_DIR"; then
-            log_error "Failed to create fallback HF cache dir: $HF_CACHE_DIR"
+    # Base cache directory on scratch (to avoid disk quota issues in home)
+    local BASE_CACHE_DIR="/scratch/kb5253/cache"
+    
+    # Create all cache subdirectories
+    local cache_dirs=("hf" "torch" "vllm" "torch_compile")
+    for dir in "${cache_dirs[@]}"; do
+        if ! ensure_directory "$BASE_CACHE_DIR/$dir"; then
+            log_error "Failed to create cache directory: $BASE_CACHE_DIR/$dir"
             return 1
         fi
-    fi
-
-    # Set HuggingFace environment variables
-    export HF_HOME="$HF_CACHE_DIR"
-    export TRANSFORMERS_CACHE="$HF_CACHE_DIR"
-    export HF_DATASETS_CACHE="$HF_CACHE_DIR"
+    done
     
-    log_info "HF_HOME: $HF_HOME"
-    log_info "TRANSFORMERS_CACHE: $TRANSFORMERS_CACHE"
-    log_info "HF_DATASETS_CACHE: $HF_DATASETS_CACHE"
+    # HuggingFace / Transformers cache
+    export HF_HOME="$BASE_CACHE_DIR/hf"
+    export TRANSFORMERS_CACHE="$BASE_CACHE_DIR/hf"
+    export HF_DATASETS_CACHE="$BASE_CACHE_DIR/hf"
+    
+    # PyTorch cache
+    export TORCH_HOME="$BASE_CACHE_DIR/torch"
+    
+    # vLLM cache
+    export VLLM_CACHE_DIR="$BASE_CACHE_DIR/vllm"
+    
+    # Torch compile / dynamo cache (critical to avoid home disk quota)
+    export TORCH_COMPILE_CACHE_DIR="$BASE_CACHE_DIR/torch_compile"
+    export TORCHDYNAMO_CACHE_DIR="$BASE_CACHE_DIR/torch_compile"
+    
+    # General XDG fallback
+    export XDG_CACHE_HOME="$BASE_CACHE_DIR"
+    
+    log_info "Cache directories configured:"
+    log_info "  HF_HOME: $HF_HOME"
+    log_info "  TORCH_HOME: $TORCH_HOME"
+    log_info "  VLLM_CACHE_DIR: $VLLM_CACHE_DIR"
+    log_info "  TORCH_COMPILE_CACHE_DIR: $TORCH_COMPILE_CACHE_DIR"
+    log_info "  XDG_CACHE_HOME: $XDG_CACHE_HOME"
 }
 
 # Function to check GPU availability
@@ -83,13 +101,13 @@ main() {
         log_info "Modules loaded successfully"
     fi
     
-    # Setup HuggingFace environment
-    log_info "Setting up HuggingFace environment..."
-    setup_hf_environment || {
-        log_error "Failed to setup HuggingFace environment"
+    # Setup cache environments (HF, PyTorch, vLLM, Torch compile)
+    log_info "Setting up cache environments..."
+    setup_cache_environment || {
+        log_error "Failed to setup cache environment"
         return 1
     }
-    log_info "HuggingFace environment setup complete"
+    log_info "Cache environment setup complete"
     
     # Verify vllm command is available
     # Optionally activate conda environment if provided
