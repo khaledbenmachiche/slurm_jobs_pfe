@@ -4,6 +4,12 @@
 # Provides consistent logging format across all jobs
 #
 
+# Prevent multiple sourcing
+if [[ "${_LOGGING_SH_SOURCED:-}" == "true" ]]; then
+    return 0
+fi
+readonly _LOGGING_SH_SOURCED="true"
+
 # ANSI color codes for better readability
 readonly COLOR_RESET='\033[0m'
 readonly COLOR_RED='\033[0;31m'
