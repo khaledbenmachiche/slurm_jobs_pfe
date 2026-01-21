@@ -34,13 +34,21 @@ log_job_header "$JOB_NAME"
 # Setup cleanup trap
 setup_cleanup_trap
 
+
 # Function to setup HuggingFace environment
 setup_hf_environment() {
     log_info "Setting up HuggingFace environment..."
     
-    # Create cache directory if it doesn't exist
-    ensure_directory "$HF_CACHE_DIR"
-    
+    # Create cache directory if it doesn't exist; fall back if /scratch isn't writable
+    if ! ensure_directory "$HF_CACHE_DIR"; then
+        log_warn "Unable to create HF cache dir: $HF_CACHE_DIR — falling back to home cache"
+        HF_CACHE_DIR="$HOME/.cache/hf"
+        if ! ensure_directory "$HF_CACHE_DIR"; then
+            log_error "Failed to create fallback HF cache dir: $HF_CACHE_DIR"
+            return 1
+        fi
+    fi
+
     # Set HuggingFace environment variables
     export HF_HOME="$HF_CACHE_DIR"
     export TRANSFORMERS_CACHE="$HF_CACHE_DIR"
@@ -67,14 +75,13 @@ check_gpu() {
 main() {
     log_info "Starting vLLM server job main function..."
 
-    # Load required modules
+    # Load required modules (optional)
     log_info "Loading required modules..."
-    load_modules gcc/9.2.0 || {
-        log_error "Failed to load modules"
-        return 1
-    }
-
-    log_info "Modules loaded successfully"
+    if ! load_modules gcc/9.2.0; then
+        log_warn "Could not load module gcc/9.2.0; continuing without it"
+    else
+        log_info "Modules loaded successfully"
+    fi
     
     # Setup HuggingFace environment
     log_info "Setting up HuggingFace environment..."
@@ -85,9 +92,17 @@ main() {
     log_info "HuggingFace environment setup complete"
     
     # Verify vllm command is available
+    # Optionally activate conda environment if provided
+    if [[ -n "${CONDA_ENV:-}" ]]; then
+        log_info "Activating Conda environment: $CONDA_ENV"
+        if ! setup_conda_env "$CONDA_ENV"; then
+            log_warn "Failed to activate conda env: $CONDA_ENV — continuing"
+        fi
+    fi
+
     verify_command vllm || {
         log_error "vllm command not found. Make sure vllm is installed."
-        log_info "Install with: pip install vllm"
+        log_info "Install with: pip install vllm or activate appropriate environment"
         return 1
     }
     

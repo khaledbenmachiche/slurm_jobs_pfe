@@ -99,22 +99,30 @@ _log() {
 
 # Log debug message
 log_debug() {
-    [[ $LOG_LEVEL -le $LOG_LEVEL_DEBUG ]] && _log "DEBUG" "$COLOR_CYAN" "$@"
+    if [[ $LOG_LEVEL -le $LOG_LEVEL_DEBUG ]]; then
+        _log "DEBUG" "$COLOR_CYAN" "$@"
+    fi
 }
 
 # Log info message
 log_info() {
-    [[ $LOG_LEVEL -le $LOG_LEVEL_INFO ]] && _log "INFO" "$COLOR_GREEN" "$@"
+    if [[ $LOG_LEVEL -le $LOG_LEVEL_INFO ]]; then
+        _log "INFO" "$COLOR_GREEN" "$@"
+    fi
 }
 
 # Log warning message
 log_warn() {
-    [[ $LOG_LEVEL -le $LOG_LEVEL_WARN ]] && _log "WARN" "$COLOR_YELLOW" "$@"
+    if [[ $LOG_LEVEL -le $LOG_LEVEL_WARN ]]; then
+        _log "WARN" "$COLOR_YELLOW" "$@"
+    fi
 }
 
 # Log error message
 log_error() {
-    [[ $LOG_LEVEL -le $LOG_LEVEL_ERROR ]] && _log "ERROR" "$COLOR_RED" "$@" >&2
+    if [[ $LOG_LEVEL -le $LOG_LEVEL_ERROR ]]; then
+        _log "ERROR" "$COLOR_RED" "$@" >&2
+    fi
 }
 
 # Log a separator line
