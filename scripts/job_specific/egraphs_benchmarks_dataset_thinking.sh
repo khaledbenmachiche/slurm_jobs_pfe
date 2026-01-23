@@ -49,7 +49,7 @@ main() {
     # 3. Configure Arguments
     # For benchmarks, we likely want a different input file
     # Assuming relative to scratch/chehab
-    INPUT_FILE="${BENCHMARKS_INPUT_FILE:-/scratch/kb5253/chehab/RL/fhe_rl/datasets/benchmarks.txt}"
+    INPUT_FILE="${BENCHMARKS_INPUT_FILE:-/scratch/$USER/chehab/egraphs/benchmarks_traces.json}"
     OUTPUT_FILE="${BENCHMARKS_OUTPUT_FILE:-/scratch/$USER/slurm_jobs_pfe/data/thinking_benchmarks_dataset_$(date +%Y%m%d_%H%M%S).jsonl}"
     
     # Ensure output directory exists
