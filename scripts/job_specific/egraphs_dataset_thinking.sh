@@ -59,6 +59,13 @@ main() {
     # VLLM Configuration
     PROVIDER="vllm"
     MODEL="Qwen2.5-32B-Instruct"
+
+    # Setup VLLM_BASE_URL if provider is vllm
+    if [[ "$PROVIDER" == "vllm" ]]; then
+        # Use existing env var or default
+        export VLLM_BASE_URL="${VLLM_BASE_URL:-http://localhost:8000/v1}"
+        log_info "Using VLLM_BASE_URL: $VLLM_BASE_URL"
+    fi
     
     # Command construction
     CMD="python $PYTHON_SCRIPT \

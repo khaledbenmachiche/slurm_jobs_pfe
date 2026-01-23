@@ -4,8 +4,8 @@
 #SBATCH --qos=c2
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=8G
 #SBATCH --time=4-00:00:00
 #SBATCH --output=/scratch/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking/job_%j_%Y%m%d_%H%M%S.log
 #SBATCH --error=/scratch/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking/job_%j_%Y%m%d_%H%M%S.err
