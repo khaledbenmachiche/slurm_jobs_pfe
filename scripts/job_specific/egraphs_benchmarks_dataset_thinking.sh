@@ -57,7 +57,7 @@ main() {
 
     # VLLM Configuration
     PROVIDER="vllm"
-    MODEL="Qwen2.5-32B-Instruct"
+    MODEL="/scratch/models/Qwen2.5-32B-Instruct"
 
     # Setup VLLM_BASE_URL if provider is vllm
     if [[ "$PROVIDER" == "vllm" ]]; then

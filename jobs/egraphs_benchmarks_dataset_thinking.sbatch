@@ -12,7 +12,7 @@
 
 PROJECT_ROOT="/scratch/kb5253/slurm_jobs_pfe"
 # Setup log directory
-mkdir -p "$(dirname "$0")/../../logs/jobs/egraphs_benchmarks_dataset_thinking"
+mkdir -p "$PROJECT_ROOT/logs/jobs/egraphs_benchmarks_dataset_thinking"
 
 # Verify project root exists
 if [[ ! -d "$PROJECT_ROOT" ]]; then
