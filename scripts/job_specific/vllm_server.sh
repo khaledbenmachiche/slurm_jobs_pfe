@@ -23,6 +23,7 @@ JOB_NAME="vllm_server"
 : ${DTYPE:="auto"}
 : ${MAX_MODEL_LEN:=8192}
 : ${GPU_MEMORY_UTILIZATION:=0.9}
+: ${TENSOR_PARALLEL_SIZE:=2}
 : ${HOST:="0.0.0.0"}
 : ${PORT:=8000}
 : ${HF_CACHE_DIR:="/scratch/kb5253/hf_cache"}
@@ -156,7 +157,7 @@ main() {
     # Start vLLM server
     log_info "Starting vLLM server..."
     log_info "Server will be accessible at http://$(hostname):$PORT"
-    log_info "Command: vllm serve \"$MODEL_PATH\" --dtype \"$DTYPE\" --max-model-len \"$MAX_MODEL_LEN\" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\" --host \"$HOST\" --port \"$PORT\""
+    log_info "Command: vllm serve \"$MODEL_PATH\" --dtype \"$DTYPE\" --max-model-len \"$MAX_MODEL_LEN\" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\" --tensor-parallel-size \"$TENSOR_PARALLEL_SIZE\" --host \"$HOST\" --port \"$PORT\""
     log_separator "="
     
     # Run vllm server (this will block)
@@ -165,6 +166,7 @@ main() {
         --dtype "$DTYPE" \
         --max-model-len "$MAX_MODEL_LEN" \
         --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION" \
+        --tensor-parallel-size "$TENSOR_PARALLEL_SIZE" \
         --host "$HOST" \
         --port "$PORT" &
     
