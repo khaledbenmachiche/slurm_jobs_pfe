@@ -110,6 +110,14 @@ main() {
     }
     log_info "Cache environment setup complete"
     
+    # Load miniconda module to make conda command available
+    log_info "Loading miniconda module..."
+    if ! load_modules miniconda/3-4.11.0; then
+        log_error "Failed to load miniconda module"
+        return 1
+    fi
+    log_info "Miniconda module loaded successfully"
+    
     # Verify vllm command is available
     # Activate conda environment
     log_info "Activating Conda environment: $CONDA_ENV"
