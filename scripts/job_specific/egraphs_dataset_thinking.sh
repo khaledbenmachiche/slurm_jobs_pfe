@@ -29,7 +29,15 @@ main() {
     # 1. Setup Environment
     # No CUDA needed for API client
     
-    CONDA_ENV_NAME="data_generation" 
+    # Load miniconda module to make conda command available
+    log_info "Loading miniconda module..."
+    if ! load_modules miniconda/3-4.11.0; then
+        log_error "Failed to load miniconda module"
+        return 1
+    fi
+    log_info "Miniconda module loaded successfully"
+    
+    CONDA_ENV_NAME="/scratch/kb5253/conda_envs/data_generation" 
     setup_conda_env "$CONDA_ENV_NAME"
 
     # 2. Setup Paths
