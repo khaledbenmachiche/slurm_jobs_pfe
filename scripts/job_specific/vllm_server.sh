@@ -27,6 +27,7 @@ JOB_NAME="vllm_server"
 : ${HOST:="0.0.0.0"}
 : ${PORT:=8000}
 : ${HF_CACHE_DIR:="/scratch/kb5253/hf_cache"}
+: ${CONDA_ENV:="/scratch/kb5253/conda_envs/vllm"}
 
 # Initialize logging
 setup_job_logging "$JOB_NAME"
@@ -110,12 +111,11 @@ main() {
     log_info "Cache environment setup complete"
     
     # Verify vllm command is available
-    # Optionally activate conda environment if provided
-    if [[ -n "${CONDA_ENV:-}" ]]; then
-        log_info "Activating Conda environment: $CONDA_ENV"
-        if ! setup_conda_env "$CONDA_ENV"; then
-            log_warn "Failed to activate conda env: $CONDA_ENV — continuing"
-        fi
+    # Activate conda environment
+    log_info "Activating Conda environment: $CONDA_ENV"
+    if ! setup_conda_env "$CONDA_ENV"; then
+        log_error "Failed to activate conda env: $CONDA_ENV"
+        return 1
     fi
 
     verify_command vllm || {
