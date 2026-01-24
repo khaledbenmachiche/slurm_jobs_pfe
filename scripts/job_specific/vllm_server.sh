@@ -21,7 +21,7 @@ JOB_NAME="vllm_server"
 # Default configuration (can be overridden by config file or environment variables)
 : ${MODEL_PATH:="/scratch/kb5253/models/Qwen2.5-32B-Instruct"}
 : ${DTYPE:="auto"}
-: ${MAX_MODEL_LEN:=8192}
+: ${MAX_MODEL_LEN:=32768}
 : ${GPU_MEMORY_UTILIZATION:=0.9}
 : ${TENSOR_PARALLEL_SIZE:=1}
 : ${HOST:="0.0.0.0"}
