@@ -83,13 +83,37 @@ setup_conda_env() {
     
     log_info "Setting up Conda environment: $env_name"
     
-    # Initialize conda if needed
-    if [[ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]]; then
-        source "$HOME/miniconda3/etc/profile.d/conda.sh"
-    elif [[ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]]; then
-        source "$HOME/anaconda3/etc/profile.d/conda.sh"
+    # Try to find conda installation
+    local conda_sh=""
+    
+    # Check common locations
+    local conda_locations=(
+        "$HOME/miniconda3/etc/profile.d/conda.sh"
+        "$HOME/anaconda3/etc/profile.d/conda.sh"
+        "/share/apps/NYUAD5/miniconda/3-4.11.0/etc/profile.d/conda.sh"
+        "$CONDA_PREFIX/../etc/profile.d/conda.sh"
+    )
+    
+    for location in "${conda_locations[@]}"; do
+        if [[ -f "$location" ]]; then
+            conda_sh="$location"
+            log_info "Found conda.sh at: $conda_sh"
+            break
+        fi
+    done
+    
+    # If conda.sh found, source it
+    if [[ -n "$conda_sh" ]]; then
+        source "$conda_sh"
+        log_info "Sourced conda initialization script"
+    elif command -v conda &> /dev/null; then
+        # Conda command is already available (e.g., from module load)
+        log_info "Conda command already available: $(which conda)"
+        # Initialize conda for bash
+        eval "$(conda shell.bash hook)"
     else
         log_error "Conda installation not found"
+        log_error "Tried locations: ${conda_locations[*]}"
         return 1
     fi
     
