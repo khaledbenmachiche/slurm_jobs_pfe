@@ -21,7 +21,7 @@ JOB_NAME="vllm_server"
 # Default configuration (can be overridden by config file or environment variables)
 : ${MODEL_PATH:="openai/gpt-oss-120b"}
 : ${DTYPE:="bfloat16"}
-: ${MAX_MODEL_LEN:=32768}
+: ${MAX_MODEL_LEN:=131072}
 : ${GPU_MEMORY_UTILIZATION:=0.92}
 : ${TENSOR_PARALLEL_SIZE:=2}
 : ${ENABLE_CHUNKED_PREFILL:="true"}
