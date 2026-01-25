@@ -21,9 +21,11 @@ JOB_NAME="vllm_server"
 # Default configuration (can be overridden by config file or environment variables)
 : ${MODEL_PATH:="/scratch/kb5253/models/Qwen2.5-32B-Instruct"}
 : ${DTYPE:="auto"}
-: ${MAX_MODEL_LEN:=32768}
+: ${MAX_MODEL_LEN:=131072}
 : ${GPU_MEMORY_UTILIZATION:=0.9}
-: ${TENSOR_PARALLEL_SIZE:=1}
+: ${TENSOR_PARALLEL_SIZE:=2}
+: ${ROPE_SCALING:="yarn"}
+: ${ROPE_SCALING_FACTOR:=4}
 : ${HOST:="0.0.0.0"}
 : ${PORT:=8000}
 : ${HF_CACHE_DIR:="/scratch/kb5253/hf_cache"}
@@ -153,7 +155,10 @@ main() {
     log_info "  Model: $MODEL_PATH"
     log_info "  Data type: $DTYPE"
     log_info "  Max model length: $MAX_MODEL_LEN"
+    log_info "  RoPE scaling: $ROPE_SCALING"
+    log_info "  RoPE scaling factor: $ROPE_SCALING_FACTOR"
     log_info "  GPU memory utilization: $GPU_MEMORY_UTILIZATION"
+    log_info "  Tensor parallel size: $TENSOR_PARALLEL_SIZE"
     log_info "  Host: $HOST"
     log_info "  Port: $PORT"
     log_info "  Node: ${SLURM_NODELIST:-$(hostname)}"
@@ -165,7 +170,7 @@ main() {
     # Start vLLM server
     log_info "Starting vLLM server..."
     log_info "Server will be accessible at http://$(hostname):$PORT"
-    log_info "Command: vllm serve \"$MODEL_PATH\" --dtype \"$DTYPE\" --max-model-len \"$MAX_MODEL_LEN\" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\" --tensor-parallel-size \"$TENSOR_PARALLEL_SIZE\" --host \"$HOST\" --port \"$PORT\""
+    log_info "Command: vllm serve \"$MODEL_PATH\" --dtype \"$DTYPE\" --max-model-len \"$MAX_MODEL_LEN\" --rope-scaling \"$ROPE_SCALING\" --rope-scaling-factor \"$ROPE_SCALING_FACTOR\" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\" --tensor-parallel-size \"$TENSOR_PARALLEL_SIZE\" --host \"$HOST\" --port \"$PORT\""
     log_separator "="
     
     # Run vllm server (this will block)
@@ -173,6 +178,8 @@ main() {
     vllm serve "$MODEL_PATH" \
         --dtype "$DTYPE" \
         --max-model-len "$MAX_MODEL_LEN" \
+        --rope-scaling "$ROPE_SCALING" \
+        --rope-scaling-factor "$ROPE_SCALING_FACTOR" \
         --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION" \
         --tensor-parallel-size "$TENSOR_PARALLEL_SIZE" \
         --host "$HOST" \
