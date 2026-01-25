@@ -20,12 +20,15 @@ JOB_NAME="vllm_server"
 
 # Default configuration (can be overridden by config file or environment variables)
 : ${MODEL_PATH:="/scratch/kb5253/models/Qwen2.5-32B-Instruct"}
-: ${DTYPE:="auto"}
+: ${DTYPE:="float16"}
 : ${MAX_MODEL_LEN:=131072}
-: ${GPU_MEMORY_UTILIZATION:=0.9}
+: ${GPU_MEMORY_UTILIZATION:=0.92}
 : ${TENSOR_PARALLEL_SIZE:=2}
-: ${ROPE_SCALING:="yarn"}
+: ${ROPE_SCALING_TYPE:="yarn"}
 : ${ROPE_SCALING_FACTOR:=4}
+: ${ENABLE_CHUNKED_PREFILL:="true"}
+: ${MAX_NUM_SEQS:=1}
+: ${TRUST_REMOTE_CODE:="true"}
 : ${HOST:="0.0.0.0"}
 : ${PORT:=8000}
 : ${HF_CACHE_DIR:="/scratch/kb5253/hf_cache"}
@@ -155,10 +158,13 @@ main() {
     log_info "  Model: $MODEL_PATH"
     log_info "  Data type: $DTYPE"
     log_info "  Max model length: $MAX_MODEL_LEN"
-    log_info "  RoPE scaling: $ROPE_SCALING"
+    log_info "  RoPE scaling type: $ROPE_SCALING_TYPE"
     log_info "  RoPE scaling factor: $ROPE_SCALING_FACTOR"
     log_info "  GPU memory utilization: $GPU_MEMORY_UTILIZATION"
     log_info "  Tensor parallel size: $TENSOR_PARALLEL_SIZE"
+    log_info "  Enable chunked prefill: $ENABLE_CHUNKED_PREFILL"
+    log_info "  Max num seqs: $MAX_NUM_SEQS"
+    log_info "  Trust remote code: $TRUST_REMOTE_CODE"
     log_info "  Host: $HOST"
     log_info "  Port: $PORT"
     log_info "  Node: ${SLURM_NODELIST:-$(hostname)}"
@@ -170,18 +176,36 @@ main() {
     # Start vLLM server
     log_info "Starting vLLM server..."
     log_info "Server will be accessible at http://$(hostname):$PORT"
-    log_info "Command: vllm serve \"$MODEL_PATH\" --dtype \"$DTYPE\" --max-model-len \"$MAX_MODEL_LEN\" --rope-scaling \"$ROPE_SCALING\" --rope-scaling-factor \"$ROPE_SCALING_FACTOR\" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\" --tensor-parallel-size \"$TENSOR_PARALLEL_SIZE\" --host \"$HOST\" --port \"$PORT\""
+    
+    # Build the vllm command with conditional flags
+    local vllm_cmd="vllm serve \"$MODEL_PATH\""
+    vllm_cmd+=" --dtype \"$DTYPE\""
+    vllm_cmd+=" --tensor-parallel-size \"$TENSOR_PARALLEL_SIZE\""
+    vllm_cmd+=" --max-model-len \"$MAX_MODEL_LEN\""
+    vllm_cmd+=" --rope-scaling-type \"$ROPE_SCALING_TYPE\""
+    vllm_cmd+=" --rope-scaling-factor \"$ROPE_SCALING_FACTOR\""
+    vllm_cmd+=" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\""
+    [[ "$ENABLE_CHUNKED_PREFILL" == "true" ]] && vllm_cmd+=" --enable-chunked-prefill"
+    vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
+    [[ "$TRUST_REMOTE_CODE" == "true" ]] && vllm_cmd+=" --trust-remote-code"
+    vllm_cmd+=" --host \"$HOST\""
+    vllm_cmd+=" --port \"$PORT\""
+    
+    log_info "Command: $vllm_cmd"
     log_separator "="
     
     # Run vllm server (this will block)
     log_info "Executing vllm serve command..."
     vllm serve "$MODEL_PATH" \
         --dtype "$DTYPE" \
+        --tensor-parallel-size "$TENSOR_PARALLEL_SIZE" \
         --max-model-len "$MAX_MODEL_LEN" \
-        --rope-scaling "$ROPE_SCALING" \
+        --rope-scaling-type "$ROPE_SCALING_TYPE" \
         --rope-scaling-factor "$ROPE_SCALING_FACTOR" \
         --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION" \
-        --tensor-parallel-size "$TENSOR_PARALLEL_SIZE" \
+        --enable-chunked-prefill \
+        --max-num-seqs "$MAX_NUM_SEQS" \
+        --trust-remote-code \
         --host "$HOST" \
         --port "$PORT" &
     
