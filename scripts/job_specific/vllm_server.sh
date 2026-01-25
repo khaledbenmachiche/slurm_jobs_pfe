@@ -122,6 +122,10 @@ main() {
     fi
     log_info "Miniconda module loaded successfully"
     
+    # Force vLLM to use v0 engine to avoid compatibility issues
+    export VLLM_USE_V1=0
+    log_info "Set VLLM_USE_V1=0 to use v0 engine"
+    
     # Verify vllm command is available
     # Activate conda environment
     log_info "Activating Conda environment: $CONDA_ENV"
@@ -153,6 +157,7 @@ main() {
     log_info "  Enable chunked prefill: $ENABLE_CHUNKED_PREFILL"
     log_info "  Max num seqs: $MAX_NUM_SEQS"
     log_info "  Trust remote code: $TRUST_REMOTE_CODE"
+    log_info "  Enforce eager: true"
     log_info "  Host: $HOST"
     log_info "  Port: $PORT"
     log_info "  Node: ${SLURM_NODELIST:-$(hostname)}"
@@ -171,6 +176,7 @@ main() {
     vllm_cmd+=" --tensor-parallel-size \"$TENSOR_PARALLEL_SIZE\""
     vllm_cmd+=" --max-model-len \"$MAX_MODEL_LEN\""
     vllm_cmd+=" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\""
+    vllm_cmd+=" --enforce-eager"
     [[ "$ENABLE_CHUNKED_PREFILL" == "true" ]] && vllm_cmd+=" --enable-chunked-prefill"
     vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
     [[ "$TRUST_REMOTE_CODE" == "true" ]] && vllm_cmd+=" --trust-remote-code"
