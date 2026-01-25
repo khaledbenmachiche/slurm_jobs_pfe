@@ -29,7 +29,7 @@ JOB_NAME="vllm_server"
 : ${TRUST_REMOTE_CODE:="true"}
 : ${HOST:="0.0.0.0"}
 : ${PORT:=8000}
-: ${QUANTIZATION:="mxfp4"}
+
 : ${HF_CACHE_DIR:="/scratch/kb5253/hf_cache"}
 : ${CONDA_ENV:="/scratch/kb5253/conda_envs/vllm"}
 
@@ -136,8 +136,7 @@ main() {
         return 1
     }
     
-    log_info "vLLM version: $(vllm --version 2>&1 || echo 'unknown')"
-    
+    log_info "vLLM version: $(vllm --version 2>&1 || echo 'unknown')"    
     # Check GPU availability
     log_info "Checking GPU availability..."
     check_gpu
@@ -154,7 +153,6 @@ main() {
     log_info "  Enable chunked prefill: $ENABLE_CHUNKED_PREFILL"
     log_info "  Max num seqs: $MAX_NUM_SEQS"
     log_info "  Trust remote code: $TRUST_REMOTE_CODE"
-    log_info "  Quantization: $QUANTIZATION"
     log_info "  Host: $HOST"
     log_info "  Port: $PORT"
     log_info "  Node: ${SLURM_NODELIST:-$(hostname)}"
@@ -176,7 +174,6 @@ main() {
     [[ "$ENABLE_CHUNKED_PREFILL" == "true" ]] && vllm_cmd+=" --enable-chunked-prefill"
     vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
     [[ "$TRUST_REMOTE_CODE" == "true" ]] && vllm_cmd+=" --trust-remote-code"
-    vllm_cmd+=" --quantization \"$QUANTIZATION\""
     vllm_cmd+=" --host \"$HOST\""
     vllm_cmd+=" --port \"$PORT\""
     
