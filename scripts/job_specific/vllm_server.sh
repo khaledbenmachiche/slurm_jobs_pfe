@@ -29,6 +29,7 @@ JOB_NAME="vllm_server"
 : ${TRUST_REMOTE_CODE:="true"}
 : ${HOST:="0.0.0.0"}
 : ${PORT:=8000}
+: ${QUANTIZATION:="mxfp4"}
 : ${HF_CACHE_DIR:="/scratch/kb5253/hf_cache"}
 : ${CONDA_ENV:="/scratch/kb5253/conda_envs/vllm"}
 
@@ -142,14 +143,6 @@ main() {
     check_gpu
     log_info "GPU check complete"
     
-    # Verify model path
-    log_info "Verifying model path: $MODEL_PATH"
-    verify_directory "$MODEL_PATH" "Model directory" || {
-        log_error "Model directory verification failed"
-        return 1
-    }
-    log_info "Model path verified successfully"
-    
     # Print configuration
     log_separator "="
     log_info "vLLM Server Configuration:"
@@ -161,6 +154,7 @@ main() {
     log_info "  Enable chunked prefill: $ENABLE_CHUNKED_PREFILL"
     log_info "  Max num seqs: $MAX_NUM_SEQS"
     log_info "  Trust remote code: $TRUST_REMOTE_CODE"
+    log_info "  Quantization: $QUANTIZATION"
     log_info "  Host: $HOST"
     log_info "  Port: $PORT"
     log_info "  Node: ${SLURM_NODELIST:-$(hostname)}"
@@ -178,9 +172,11 @@ main() {
     vllm_cmd+=" --dtype \"$DTYPE\""
     vllm_cmd+=" --tensor-parallel-size \"$TENSOR_PARALLEL_SIZE\""
     vllm_cmd+=" --max-model-len \"$MAX_MODEL_LEN\""
+    vllm_cmd+=" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\""
     [[ "$ENABLE_CHUNKED_PREFILL" == "true" ]] && vllm_cmd+=" --enable-chunked-prefill"
     vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
     [[ "$TRUST_REMOTE_CODE" == "true" ]] && vllm_cmd+=" --trust-remote-code"
+    vllm_cmd+=" --quantization \"$QUANTIZATION\""
     vllm_cmd+=" --host \"$HOST\""
     vllm_cmd+=" --port \"$PORT\""
     
@@ -189,14 +185,7 @@ main() {
     
     # Run vllm server (this will block)
     log_info "Executing vllm serve command..."
-    vllm serve "$MODEL_PATH" \
-        --dtype "$DTYPE" \
-        --max-model-len "$MAX_MODEL_LEN" \
-        --max-num-seqs "$MAX_NUM_SEQS" \
-        --enable-chunked-prefill \
-        --tensor-parallel-size "$TENSOR_PARALLEL_SIZE" \
-        --host "$HOST" \
-        --port "$PORT" &
+    eval "$vllm_cmd &"
     
     local vllm_pid=$!
     echo "$vllm_pid" > "$pid_file"
