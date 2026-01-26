@@ -188,7 +188,7 @@ main() {
     
     # Run vllm server (this will block)
     log_info "Executing vllm serve command..."
-    eval "$vllm_cmd &"
+    eval "VLLM_USE_V1=0 $vllm_cmd &"
     
     local vllm_pid=$!
     echo "$vllm_pid" > "$pid_file"
