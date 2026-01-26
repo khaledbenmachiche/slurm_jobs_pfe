@@ -136,9 +136,14 @@ main() {
         return 1
     }
     
-    # Force vLLM to use v0 engine to avoid compatibility issues
-    export VLLM_USE_V1=0
-    log_info "Set VLLM_USE_V1=0 to use v0 engine"
+    # Try v1 engine which may handle MOE issues better
+    export VLLM_USE_V1=1
+    log_info "Set VLLM_USE_V1=1 to use v1 engine (better MOE support)"
+    
+    # Workarounds for missing MOE kernels
+    export VLLM_ATTENTION_BACKEND=FLASH_ATTN
+    export VLLM_USE_TRITON_FLASH_ATTN=0
+    log_info "Set attention backend workarounds"
     
     log_info "vLLM version: $(vllm --version 2>&1 || echo 'unknown')"    
     # Check GPU availability
@@ -188,7 +193,7 @@ main() {
     
     # Run vllm server (this will block)
     log_info "Executing vllm serve command..."
-    eval "VLLM_USE_V1=0 $vllm_cmd &"
+    eval "$vllm_cmd &"
     
     local vllm_pid=$!
     echo "$vllm_pid" > "$pid_file"
