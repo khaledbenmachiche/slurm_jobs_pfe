@@ -141,7 +141,11 @@ main() {
     export VLLM_USE_V1=0
     log_info "Set VLLM_USE_V1=0 to use v0 engine (compatible with A100 GPUs)"
     
-    # Workarounds for missing MOE kernels
+    # Disable multiprocessing frontend to force v0 engine
+    export VLLM_DISABLE_FRONTEND_MULTIPROCESSING=1
+    log_info "Set VLLM_DISABLE_FRONTEND_MULTIPROCESSING=1 to ensure v0 engine usage"
+    
+    # Workarounds for missing MOE kernels and attention backend
     export VLLM_ATTENTION_BACKEND=FLASH_ATTN
     export VLLM_USE_TRITON_FLASH_ATTN=0
     log_info "Set attention backend workarounds"
@@ -183,6 +187,7 @@ main() {
     vllm_cmd+=" --max-model-len \"$MAX_MODEL_LEN\""
     vllm_cmd+=" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\""
     vllm_cmd+=" --enforce-eager"
+    vllm_cmd+=" --disable-frontend-multiprocessing"  # Force v0 engine
     [[ "$ENABLE_CHUNKED_PREFILL" == "true" ]] && vllm_cmd+=" --enable-chunked-prefill"
     vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
     [[ "$TRUST_REMOTE_CODE" == "true" ]] && vllm_cmd+=" --trust-remote-code"
