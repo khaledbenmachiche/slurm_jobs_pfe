@@ -136,13 +136,10 @@ main() {
         return 1
     }
     
-    # Try v1 engine which may handle MOE issues better
-    export VLLM_USE_V1=1
-    log_info "Set VLLM_USE_V1=1 to use v1 engine (better MOE support)"
-    
-    # Disable attention sink for compatibility with compute capability < 9.0
-    export VLLM_NUM_SCHEDULER_STEPS=1
-    log_info "Set VLLM_NUM_SCHEDULER_STEPS=1 to disable attention sink (for GPU compatibility)"
+    # Disable v1 engine to avoid attention sink compatibility issues
+    # V1 requires compute capability 9.0+ for attention sink feature
+    export VLLM_USE_V1=0
+    log_info "Set VLLM_USE_V1=0 to use v0 engine (compatible with A100 GPUs)"
     
     # Workarounds for missing MOE kernels
     export VLLM_ATTENTION_BACKEND=FLASH_ATTN
