@@ -25,7 +25,6 @@ JOB_NAME="vllm_server"
 : ${GPU_MEMORY_UTILIZATION:=0.92}
 : ${TENSOR_PARALLEL_SIZE:=2}
 : ${ENABLE_CHUNKED_PREFILL:="false"}
-: ${NUM_SCHEDULER_STEPS:=1}
 : ${MAX_NUM_SEQS:=1}
 : ${TRUST_REMOTE_CODE:="true"}
 : ${HOST:="0.0.0.0"}
@@ -141,6 +140,10 @@ main() {
     export VLLM_USE_V1=1
     log_info "Set VLLM_USE_V1=1 to use v1 engine (better MOE support)"
     
+    # Disable attention sink for compatibility with compute capability < 9.0
+    export VLLM_NUM_SCHEDULER_STEPS=1
+    log_info "Set VLLM_NUM_SCHEDULER_STEPS=1 to disable attention sink (for GPU compatibility)"
+    
     # Workarounds for missing MOE kernels
     export VLLM_ATTENTION_BACKEND=FLASH_ATTN
     export VLLM_USE_TRITON_FLASH_ATTN=0
@@ -161,7 +164,6 @@ main() {
     log_info "  GPU memory utilization: $GPU_MEMORY_UTILIZATION"
     log_info "  Tensor parallel size: $TENSOR_PARALLEL_SIZE"
     log_info "  Enable chunked prefill: $ENABLE_CHUNKED_PREFILL"
-    log_info "  Num scheduler steps: $NUM_SCHEDULER_STEPS"
     log_info "  Max num seqs: $MAX_NUM_SEQS"
     log_info "  Trust remote code: $TRUST_REMOTE_CODE"
     log_info "  Enforce eager: true"
@@ -184,7 +186,6 @@ main() {
     vllm_cmd+=" --max-model-len \"$MAX_MODEL_LEN\""
     vllm_cmd+=" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\""
     vllm_cmd+=" --enforce-eager"
-    vllm_cmd+=" --num-scheduler-steps \"$NUM_SCHEDULER_STEPS\""
     [[ "$ENABLE_CHUNKED_PREFILL" == "true" ]] && vllm_cmd+=" --enable-chunked-prefill"
     vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
     [[ "$TRUST_REMOTE_CODE" == "true" ]] && vllm_cmd+=" --trust-remote-code"
