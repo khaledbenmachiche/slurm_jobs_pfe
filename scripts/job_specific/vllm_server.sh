@@ -136,26 +136,13 @@ main() {
         return 1
     }
     
-    # Disable v1 engine to avoid attention sink compatibility issues
-    # V1 requires compute capability 9.0+ for attention sink feature
-    export VLLM_USE_V1=0
-    log_info "Set VLLM_USE_V1=0 to use v0 engine (compatible with A100 GPUs)"
+    # GPT-OSS on A100: According to official vLLM documentation, 
+    # GPT-OSS works on Ampere (A100) devices by default using TRITON_ATTN backend
+    # Official documentation: https://docs.vllm.ai/projects/recipes/en/latest/OpenAI/GPT-OSS.html#a100
+    # Command: vllm serve openai/gpt-oss-120b --async-scheduling [--tensor-parallel-size N]
     
-    # Disable multiprocessing frontend to force v0 engine
-    export VLLM_DISABLE_FRONTEND_MULTIPROCESSING=1
-    log_info "Set VLLM_DISABLE_FRONTEND_MULTIPROCESSING=1 to ensure v0 engine usage"
-    
-    # Keep default attention backend (don't force XFORMERS or FLASH_ATTN)
-    # The v0 engine will auto-select the appropriate backend
-    # NOTE: For GPT-OSS models with attention sink, vLLM will automatically
-    # handle backend selection based on hardware capabilities
-    unset VLLM_ATTENTION_BACKEND
-    log_info "Using default attention backend (auto-selected by vLLM v0 engine)"
-    
-    # Additional environment variables to force v0
-    export VLLM_USE_MODELSCOPE=0
-    export VLLM_WORKER_MULTIPROC_METHOD=spawn
-    log_info "Set additional v0 engine enforcement flags"
+    log_info "Using default vLLM configuration for A100 + GPT-OSS"
+    log_info "Official backend: TRITON_ATTN (automatically selected)"
     
     log_info "vLLM version: $(vllm --version 2>&1 || echo 'unknown')"    
     # Check GPU availability
@@ -174,9 +161,8 @@ main() {
     log_info "  Enable chunked prefill: $ENABLE_CHUNKED_PREFILL"
     log_info "  Max num seqs: $MAX_NUM_SEQS"
     log_info "  Trust remote code: $TRUST_REMOTE_CODE"
-    log_info "  Enforce eager: true"
-    log_info "  Attention backend: auto (default)"
-    log_info "  Engine version: v0 (forced for A100 compatibility)"
+    log_info "  Async scheduling: enabled (A100 official)"
+    log_info "  Attention backend: TRITON_ATTN (auto-selected for A100)"
     log_info "  Host: $HOST"
     log_info "  Port: $PORT"
     log_info "  Node: ${SLURM_NODELIST:-$(hostname)}"
@@ -189,17 +175,18 @@ main() {
     log_info "Starting vLLM server..."
     log_info "Server will be accessible at http://$(hostname):$PORT"
     
-    # Build the vllm command with conditional flags
+    # Build the vllm command matching official A100 documentation
+    # Official: vllm serve MODEL --async-scheduling --tensor-parallel-size N
     local vllm_cmd="vllm serve \"$MODEL_PATH\""
-    vllm_cmd+=" --dtype \"$DTYPE\""
+    vllm_cmd+=" --async-scheduling"  # Official A100 requirement
     vllm_cmd+=" --tensor-parallel-size \"$TENSOR_PARALLEL_SIZE\""
-    vllm_cmd+=" --max-model-len \"$MAX_MODEL_LEN\""
-    vllm_cmd+=" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\""
-    vllm_cmd+=" --enforce-eager"
-    vllm_cmd+=" --disable-frontend-multiprocessing"  # Force v0 engine
-    vllm_cmd+=" --disable-log-stats"  # Disable v1-specific features
+    
+    # Optional configurations (can be customized)
+    [[ -n "$DTYPE" ]] && vllm_cmd+=" --dtype \"$DTYPE\""
+    [[ -n "$MAX_MODEL_LEN" ]] && vllm_cmd+=" --max-model-len \"$MAX_MODEL_LEN\""
+    [[ -n "$GPU_MEMORY_UTILIZATION" ]] && vllm_cmd+=" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\""
     [[ "$ENABLE_CHUNKED_PREFILL" == "true" ]] && vllm_cmd+=" --enable-chunked-prefill"
-    vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
+    [[ -n "$MAX_NUM_SEQS" ]] && vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
     [[ "$TRUST_REMOTE_CODE" == "true" ]] && vllm_cmd+=" --trust-remote-code"
     vllm_cmd+=" --host \"$HOST\""
     vllm_cmd+=" --port \"$PORT\""
