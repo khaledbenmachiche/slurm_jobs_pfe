@@ -145,10 +145,15 @@ main() {
     export VLLM_DISABLE_FRONTEND_MULTIPROCESSING=1
     log_info "Set VLLM_DISABLE_FRONTEND_MULTIPROCESSING=1 to ensure v0 engine usage"
     
-    # Workarounds for missing MOE kernels and attention backend
-    export VLLM_ATTENTION_BACKEND=FLASH_ATTN
-    export VLLM_USE_TRITON_FLASH_ATTN=0
-    log_info "Set attention backend workarounds"
+    # Use XFORMERS backend instead of FLASH_ATTN to avoid attention sink issues
+    # FLASH_ATTN triggers sink feature which requires compute capability 9.0+
+    export VLLM_ATTENTION_BACKEND=XFORMERS
+    log_info "Set VLLM_ATTENTION_BACKEND=XFORMERS (avoiding FLASH_ATTN sink issues)"
+    
+    # Additional environment variables to force v0
+    export VLLM_USE_MODELSCOPE=0
+    export VLLM_WORKER_MULTIPROC_METHOD=spawn
+    log_info "Set additional v0 engine enforcement flags"
     
     log_info "vLLM version: $(vllm --version 2>&1 || echo 'unknown')"    
     # Check GPU availability
@@ -168,6 +173,8 @@ main() {
     log_info "  Max num seqs: $MAX_NUM_SEQS"
     log_info "  Trust remote code: $TRUST_REMOTE_CODE"
     log_info "  Enforce eager: true"
+    log_info "  Attention backend: XFORMERS"
+    log_info "  Engine version: v0 (forced for A100 compatibility)"
     log_info "  Host: $HOST"
     log_info "  Port: $PORT"
     log_info "  Node: ${SLURM_NODELIST:-$(hostname)}"
@@ -188,6 +195,7 @@ main() {
     vllm_cmd+=" --gpu-memory-utilization \"$GPU_MEMORY_UTILIZATION\""
     vllm_cmd+=" --enforce-eager"
     vllm_cmd+=" --disable-frontend-multiprocessing"  # Force v0 engine
+    vllm_cmd+=" --disable-log-stats"  # Disable v1-specific features
     [[ "$ENABLE_CHUNKED_PREFILL" == "true" ]] && vllm_cmd+=" --enable-chunked-prefill"
     vllm_cmd+=" --max-num-seqs \"$MAX_NUM_SEQS\""
     [[ "$TRUST_REMOTE_CODE" == "true" ]] && vllm_cmd+=" --trust-remote-code"
