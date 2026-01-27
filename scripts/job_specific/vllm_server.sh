@@ -145,10 +145,12 @@ main() {
     export VLLM_DISABLE_FRONTEND_MULTIPROCESSING=1
     log_info "Set VLLM_DISABLE_FRONTEND_MULTIPROCESSING=1 to ensure v0 engine usage"
     
-    # Use XFORMERS backend instead of FLASH_ATTN to avoid attention sink issues
-    # FLASH_ATTN triggers sink feature which requires compute capability 9.0+
-    export VLLM_ATTENTION_BACKEND=XFORMERS
-    log_info "Set VLLM_ATTENTION_BACKEND=XFORMERS (avoiding FLASH_ATTN sink issues)"
+    # Keep default attention backend (don't force XFORMERS or FLASH_ATTN)
+    # The v0 engine will auto-select the appropriate backend
+    # NOTE: For GPT-OSS models with attention sink, vLLM will automatically
+    # handle backend selection based on hardware capabilities
+    unset VLLM_ATTENTION_BACKEND
+    log_info "Using default attention backend (auto-selected by vLLM v0 engine)"
     
     # Additional environment variables to force v0
     export VLLM_USE_MODELSCOPE=0
@@ -173,7 +175,7 @@ main() {
     log_info "  Max num seqs: $MAX_NUM_SEQS"
     log_info "  Trust remote code: $TRUST_REMOTE_CODE"
     log_info "  Enforce eager: true"
-    log_info "  Attention backend: XFORMERS"
+    log_info "  Attention backend: auto (default)"
     log_info "  Engine version: v0 (forced for A100 compatibility)"
     log_info "  Host: $HOST"
     log_info "  Port: $PORT"
