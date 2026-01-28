@@ -133,6 +133,10 @@ main() {
         return 1
     fi
 
+    # Ensure we're using the conda environment's vLLM
+    export PATH="$CONDA_ENV/bin:$PATH"
+    export PYTHONPATH="$CONDA_ENV/lib/python3.10/site-packages:$PYTHONPATH"
+
     verify_command vllm || {
         log_error "vllm command not found. Make sure vllm is installed."
         log_info "Install with: pip install vllm or activate appropriate environment"
