@@ -19,7 +19,7 @@ source "$SCRIPT_DIR/cleanup.sh" || { echo "Failed to source cleanup.sh"; exit 1;
 JOB_NAME="vllm_server"
 
 # Default configuration (can be overridden by config file or environment variables)
-: ${MODEL_PATH:="openai/gpt-oss-120b"}
+: ${MODEL_PATH:="Qwen/Qwen2.5-72B-Instruct"}
 : ${DTYPE:="bfloat16"}
 : ${MAX_MODEL_LEN:=131072}
 : ${GPU_MEMORY_UTILIZATION:=0.92}
