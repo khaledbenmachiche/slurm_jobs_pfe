@@ -14,9 +14,10 @@ source "$SCRIPT_DIR/cleanup.sh"
 
 # Job configuration
 JOB_NAME="egraphs_benchmarks_dataset_thinking_openrouter"
+LOG_BASE_DIR="/scratch/kb5253/slurm_jobs_pfe/logs"
 
 # Initialize logging
-setup_job_logging "$JOB_NAME"
+setup_job_logging "$JOB_NAME" "$LOG_BASE_DIR"
 log_job_header "$JOB_NAME"
 
 # Setup cleanup trap

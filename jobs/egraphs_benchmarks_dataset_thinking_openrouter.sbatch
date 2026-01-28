@@ -9,12 +9,12 @@
 #SBATCH --time=4-00:00:00
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=kb5253@nyu.edu
-#SBATCH --output=/scratch/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking_openrouter/job_%j.log
-#SBATCH --error=/scratch/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking_openrouter/job_%j.err
+#SBATCH --output=/home/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking_openrouter/job_%j.log
+#SBATCH --error=/home/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking_openrouter/job_%j.err
 
 PROJECT_ROOT="/scratch/kb5253/slurm_jobs_pfe"
 # Setup log directory
-mkdir -p "$PROJECT_ROOT/logs/jobs/egraphs_benchmarks_dataset_thinking_openrouter"
+mkdir -p "/home/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking_openrouter"
 
 # Verify project root exists
 if [[ ! -d "$PROJECT_ROOT" ]]; then
