@@ -74,6 +74,9 @@ setup_cache_environment() {
     # General XDG fallback
     export XDG_CACHE_HOME="$BASE_CACHE_DIR"
     
+    # Allow long context lengths (required for context > max_position_embeddings)
+    export VLLM_ALLOW_LONG_MAX_MODEL_LEN=1
+    
     log_info "Cache directories configured:"
     log_info "  HF_HOME: $HF_HOME"
     log_info "  TORCH_HOME: $TORCH_HOME"
