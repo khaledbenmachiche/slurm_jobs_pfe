@@ -66,7 +66,7 @@ main() {
         --provider $PROVIDER \
         --model $MODEL \
         --use-langfuse \
-        --concurrency ${CONCURRENCY:-1}"
+        --concurrency 1"
 
     log_info "Executing command:"
     log_info "$CMD"
