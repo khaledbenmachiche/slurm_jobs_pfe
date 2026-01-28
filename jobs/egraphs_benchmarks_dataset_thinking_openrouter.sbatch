@@ -9,8 +9,6 @@
 #SBATCH --time=4-00:00:00
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=kb5253@nyu.edu
-#SBATCH --output=/home/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking_openrouter/job_%j.log
-#SBATCH --error=/home/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_benchmarks_dataset_thinking_openrouter/job_%j.err
 
 PROJECT_ROOT="/scratch/kb5253/slurm_jobs_pfe"
 # Setup log directory
