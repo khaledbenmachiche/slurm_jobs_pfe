@@ -82,7 +82,7 @@ main() {
         --provider $PROVIDER \
         --model $MODEL \
         --use-langfuse \
-        --concurrency 4"
+        --concurrency 1"
 
     log_info "Executing command:"
     log_info "$CMD"
