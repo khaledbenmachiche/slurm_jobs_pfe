@@ -8,6 +8,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=04:00:00
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=kb5253@nyu.edu
 #SBATCH --output=/scratch/kb5253/slurm_jobs_pfe/logs/jobs/jupyter_notebook/job_%j_%Y%m%d_%H%M%S.log
 #SBATCH --error=/scratch/kb5253/slurm_jobs_pfe/logs/jobs/jupyter_notebook/job_%j_%Y%m%d_%H%M%S.err
 

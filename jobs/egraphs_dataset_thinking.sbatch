@@ -7,6 +7,8 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=64G
 #SBATCH --time=4-00:00:00
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=kb5253@nyu.edu
 #SBATCH --output=/scratch/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_dataset_thinking/job_%j.log
 #SBATCH --error=/scratch/kb5253/slurm_jobs_pfe/logs/jobs/egraphs_dataset_thinking/job_%j.err
 
